@@ -44,6 +44,8 @@ jobs:
           coverage xml -o coverage.xml
 
       - name: Upload coverage to Coveralls
+        run: |
+          coveralls --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./backend
