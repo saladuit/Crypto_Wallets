@@ -6,7 +6,7 @@ A compact FastAPI backend for checking on-chain wallet balances against expected
 
 **Project Structure**
 - `backend/` — FastAPI app, DB layer, CRUD, models, routes, and tests.
-- `frontend/` — optional React app (run with `npm run dev`).
+- `frontend/` — React app.
 
 Inside `backend/`:
 - `crud/` — high-level DB operations used by routes/services.
@@ -57,17 +57,10 @@ npm run dev
 pytest -q --cov --cov-branch
 ```
 
-- Test setup notes: `backend/tests/conftest.py` configures an in-memory SQLite database for tests using:
-
+***Test setup notes***
+  - `backend/tests/conftest.py` configures an in-memory SQLite database for tests using:
   - `SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"` with `connect_args={"check_same_thread": False}` and `poolclass=StaticPool` so the same in-memory DB is accessible across threads/connections.
   - The fixture creates the schema once for the test session (`Base.metadata.create_all(bind=engine)`), yields, then drops it at teardown.
   - The `client` fixture overrides the app's `get_db` dependency so route handlers in tests use the test session.
 
 This makes tests fast, isolated, and deterministic; external calls are mocked by tests (see `backend/services` mocks in test files).
-
-**Backend component summary**
-- `backend/crud`: functions that encapsulate common DB queries/updates for wallets (create, read, update, delete).
-- `backend/db`: SQLAlchemy engine, `SessionLocal`, and table `Base` plus helpers like `get_db` used as a FastAPI dependency.
-- `backend/models`: ORM models (e.g., `DBWallet`) and Pydantic schemas for request/response bodies.
-- `backend/routes`: FastAPI route modules that wire endpoints and call `crud`/`services`.
-- `backend/app.py`: creates the FastAPI `app`, registers routes, and is the import entry used by `uvicorn` and tests. Tests override `get_db` from here.
