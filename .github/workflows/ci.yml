@@ -42,4 +42,4 @@ jobs:
           pytest --cov=backend --cov-branch --cov-report xml
 
       - name: Coveralls
-        uses: coverallsapp/github-action@v2.2
+        uses: coverallsapp/github-action@v2
