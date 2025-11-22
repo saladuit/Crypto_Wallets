@@ -34,5 +34,5 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
-        # with:
-          # path-to-lcov: ./backend/coverage.xml
+        with:
+          path-to-lcov: ./coverage.xml
