@@ -1,3 +1,4 @@
+"""Tests for the get_db function in backend.db.get_db."""
 from backend.db.get_db import get_db
 
 import backend.db.get_db as db_module

@@ -1,5 +1,6 @@
 """ "CRUD operations for Wallet model."""
 
+from typing import Optional, Any
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from backend.models.wallet import Wallet, WalletCreate
@@ -33,13 +34,20 @@ def db_read_wallet(wallet_id: int, session: Session) -> Wallet:
     return Wallet(**db_wallet.__dict__)
 
 
-def db_update_wallet(wallet_id: int, session: Session) -> Wallet:
-    """Update a wallet in the database by its ID."""
+def db_update_wallet(
+    wallet_id: int, wallet_update: Any, session: Session
+) -> Optional[Wallet]:
+    """Update a wallet in the database by its ID using values from wallet_update."""
     db_wallet = db_find_wallet(wallet_id, session)
     if db_wallet is None:
         return None
-    for key, value in db_wallet.__dict__.items():
-        setattr(db_wallet, key, value)
+
+    if hasattr(wallet_update, "expected_quantity"):
+        if wallet_update.expected_quantity is not None:
+            try:
+                db_wallet.expected_quantity = float(wallet_update.expected_quantity)
+            except (TypeError, ValueError):
+                pass
 
     session.commit()
     session.refresh(db_wallet)

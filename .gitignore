@@ -6,5 +6,5 @@ wallets.db
 .pytest_cache/
 htmlcov/
 **node_modules**/
-frontend/
 .vscode/
+.coverage
