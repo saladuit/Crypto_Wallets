@@ -30,7 +30,7 @@ jobs:
       - name: Run tests with coverage
         # working-directory: ./backend
         run: |
-          pytest --cov-branch --cov-report xml
+          pytest --cov-branch --cov=backend --cov-report=xml:coverage.xml
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
