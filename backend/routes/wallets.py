@@ -1,7 +1,7 @@
 """Module defining FastAPI routes for wallet operations."""
 
-from fastapi import APIRouter, Depends, HTTPException
 from typing import List
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 
@@ -12,7 +12,7 @@ from backend.crud.wallet import (
     db_delete_wallet,
 )
 from backend.db.wallet import DBWallet
-from backend.models.wallet import Wallet, WalletCreate
+from backend.models.wallet import Wallet, WalletCreate, WalletUpdate
 from backend.db.get_db import get_db
 
 
@@ -60,9 +60,11 @@ def read_wallet(wallet_id: int, db: Session = Depends(get_db)) -> Wallet:
 
 
 @router.put("/{wallet_id}")
-def update_wallet(wallet_id: int, db: Session = Depends(get_db)) -> Wallet:
+def update_wallet(
+    wallet_id: int, wallet: WalletUpdate, db: Session = Depends(get_db)
+) -> Wallet:
     """Update a wallet by its ID."""
-    db_wallet = db_update_wallet(wallet_id, db)
+    db_wallet = db_update_wallet(wallet_id, wallet, db)
     if db_wallet is None:
         raise HTTPException(status_code=404, detail="Wallet not found")
     return db_wallet
