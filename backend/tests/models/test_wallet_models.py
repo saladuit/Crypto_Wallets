@@ -1,3 +1,4 @@
+"""Tests for the Wallet, WalletCreate, and WalletUpdate models."""
 import pytest
 from pydantic import ValidationError
 
