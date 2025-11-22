@@ -33,5 +33,6 @@ jobs:
           pytest --cov-branch --cov-report xml
 
       - name: Coveralls
-        working-directory: ./backend
         uses: coverallsapp/github-action@v2
+        with:
+          path-to-locv: ./coverage.xml
