@@ -7,4 +7,4 @@ wallets.db
 htmlcov/
 **node_modules**/
 .vscode/
-.coverage
+coverage.xml
