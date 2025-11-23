@@ -67,6 +67,14 @@ body{
 .btn-danger{background:#fee2e2;color:var(--danger);border:1px solid #fecaca}
 .btn-ghost{background:transparent;color:var(--dark)}
 
+/* Indigo compare button */
+.btn-compare{background:var(--indigo);color:var(--white);border:1px solid rgba(0,0,0,0.06)}
+.btn-compare:hover{filter:brightness(0.97)}
+
+/* Higher-contrast outline for refresh button */
+.btn-refresh{background:transparent;color:var(--dark);border:1px solid rgba(15,23,42,0.18);box-shadow:0 0 0 3px rgba(23,70,143,0.06)}
+.btn-refresh:hover{background:rgba(15,23,42,0.02)}
+
 .banner-success{background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b}
 .banner-error{background:#fff1f2;border:1px solid #fecaca;color:#7f1d1d}
 

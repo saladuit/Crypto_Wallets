@@ -18,6 +18,9 @@ export default function Wallets(){
   const bannerTimer = useRef(null)
   const closeTimer = useRef(null)
   const [bannerClosing, setBannerClosing] = useState(false)
+  const [lastCompare, setLastCompare] = useState(null)
+  const [compareMap, setCompareMap] = useState({})
+  const [comparing, setComparing] = useState(false)
 
   const startCloseBanner = (delay = 300) => {
     // animate then remove
@@ -79,6 +82,36 @@ export default function Wallets(){
   }, [])
 
   const handleRefresh = () => fetchWallets()
+
+  const handleCompare = async () => {
+    setComparing(true)
+    try {
+      const res = await api.get('/wallets/compare')
+      const arr = Array.isArray(res.data) ? res.data : []
+      const map = {}
+      arr.forEach(item => { map[item.address] = item })
+      setCompareMap(map)
+      setLastCompare(new Date())
+      showBanner({ type: 'success', text: 'Compare completed' })
+    } catch (e) {
+      showBanner({ type: 'error', text: e.response?.data?.detail || String(e) })
+    } finally {
+      setComparing(false)
+    }
+  }
+
+  const addExternalWallet = async (ext) => {
+    // ext is the external wallet object from compare result
+    try {
+      await api.post('/wallets/', { address: ext.address, currency: ext.external_currency || ext.currency, expected_quantity: ext.external_quantity })
+      showBanner({ type: 'success', text: 'External wallet added' })
+      // refresh local wallets and re-run compare
+      await fetchWallets()
+      await handleCompare()
+    } catch (e) {
+      showBanner({ type: 'error', text: e.response?.data?.detail || String(e) })
+    }
+  }
 
   const handleAdd = () => {
     setAdding(true)
@@ -189,9 +222,15 @@ export default function Wallets(){
 
       <div className="border rounded overflow-hidden mb-4">
         <div className="flex items-center justify-between border-b px-4 h-12 table-header">
-          <h2 className="text-sm font-medium m-0 h-8 flex items-center leading-none">Wallets</h2>
+          <div className="flex items-center gap-3">
+            <button onClick={handleCompare} disabled={comparing} className="h-8 px-3 rounded btn btn-compare">{comparing ? 'Comparing...' : 'Compare Wallets'}</button>
+            <div className="text-xs text-gray-600">
+              Last: {lastCompare ? new Date(lastCompare).toLocaleString() : 'never'}
+            </div>
+            <h2 className="text-sm font-medium m-0 h-8 flex items-center leading-none">Wallets</h2>
+          </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleRefresh} className="h-8 px-3 rounded btn btn-ghost border">Refresh</button>
+            <button onClick={handleRefresh} className="h-8 px-3 rounded btn btn-refresh">Refresh</button>
             <button onClick={handleAdd} className="h-8 px-3 rounded btn btn-primary">Add Wallet</button>
           </div>
         </div>
@@ -224,42 +263,99 @@ export default function Wallets(){
                   <th className="px-4 py-3 text-left align-middle">Address</th>
                   <th className="px-4 py-3 text-left align-middle">Currency</th>
                   <th className="px-4 py-3 text-left align-middle">Quantity</th>
+                  <th className="px-4 py-3 text-left align-middle">Status</th>
                   <th className="px-4 py-3 text-left align-middle">Actions</th>
                 </tr>
             </thead>
             <tbody>
-              {wallets.length === 0 ? (
-                <tr className="border-b border-gray-200 dark:border-gray-700"><td colSpan={4} className="px-4 py-6">No wallets found</td></tr>
+              {wallets.length === 0 && Object.keys(compareMap).length === 0 ? (
+                <tr className="border-b border-gray-200 dark:border-gray-700"><td colSpan={5} className="px-4 py-6">No wallets found</td></tr>
               ) : (
-                wallets.map(w => (
-                  <tr key={w.id} className="border-b border-gray-200 dark:border-gray-700 odd:bg-white even:bg-gray-50 table-row-hover">
-                    <td className="px-4 py-3 font-mono">{w.address}</td>
-                    <td className="px-4 py-3">{w.currency}</td>
-                    <td className="px-4 py-3">
-                      {editingId === w.id ? (
-                        <div className="flex flex-col">
-                          <input className="border rounded px-2 py-1 w-32" type="number" value={editingQty} onChange={e => setEditingQty(e.target.value)} />
-                          {editingQtyError && <div className="text-red-600 text-sm mt-1">{editingQtyError}</div>}
-                        </div>
-                      ) : (
-                        w.expected_quantity
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {editingId === w.id ? (
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => saveEdit(w.id)} className="px-2 py-1 btn btn-success">Save</button>
-                          <button onClick={cancelEdit} className="px-2 py-1 btn btn-ghost border">Cancel</button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => startEdit(w)} className="px-2 py-1 btn btn-ghost border">Edit</button>
-                          <button onClick={() => handleDelete(w.id)} className="px-2 py-1 btn btn-danger border">Delete</button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                // Build combined rows: local wallets plus external-only
+                (() => {
+                  const rowsByAddress = {}
+                  wallets.forEach(w => { rowsByAddress[w.address] = { local: w } })
+                  Object.values(compareMap).forEach(c => {
+                    if (!rowsByAddress[c.address]) rowsByAddress[c.address] = {}
+                    rowsByAddress[c.address].compare = c
+                    // if external-only, attach external object
+                    if (!rowsByAddress[c.address].local && (c.status === 'local_not_found' || c.status === 'local_not_found')) {
+                      rowsByAddress[c.address].external = { address: c.address, currency: c.external_currency, quantity: c.external_quantity }
+                    }
+                  })
+                  return Object.values(rowsByAddress).map((r, idx) => {
+                    const addr = (r.local && r.local.address) || (r.compare && r.compare.address) || (r.external && r.external.address)
+                    const isExternalOnly = !r.local && (r.compare && r.compare.status === 'local_not_found')
+                    const trClass = isExternalOnly ? 'border-b border-gray-200 dark:border-gray-700 odd:bg-white even:bg-gray-50 table-row-hover bg-orange-50' : 'border-b border-gray-200 dark:border-gray-700 odd:bg-white even:bg-gray-50 table-row-hover'
+                    const compare = r.compare
+                    return (
+                      <tr key={addr || idx} className={trClass}>
+                        <td className="px-4 py-3 font-mono">{addr}</td>
+                        <td className="px-4 py-3">{(r.local && r.local.currency) || (compare && compare.external_currency) || (r.external && r.external.currency)}</td>
+                        <td className="px-4 py-3">
+                          {r.local ? (
+                            editingId === r.local.id ? (
+                              <div className="flex flex-col">
+                                <input className="border rounded px-2 py-1 w-32" type="number" value={editingQty} onChange={e => setEditingQty(e.target.value)} />
+                                {editingQtyError && <div className="text-red-600 text-sm mt-1">{editingQtyError}</div>}
+                              </div>
+                            ) : (
+                              r.local.expected_quantity
+                            )
+                          ) : (
+                            // external-only quantity
+                            (compare && compare.external_quantity) || (r.external && r.external.quantity) || ''
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {compare ? (
+                            compare.status === 'match' ? (
+                              <div className="flex items-center gap-2 text-green-700">
+                                <span style={{width:12,height:12,background:'#16a34a',borderRadius:999}}></span>
+                                <span className="text-sm">Match</span>
+                              </div>
+                            ) : compare.status === 'mismatch' ? (
+                              <div className="flex items-center gap-2 text-red-700">
+                                <span style={{width:12,height:12,background:'#dc2626',borderRadius:999}}></span>
+                                <span className="text-sm">Difference: {compare.difference}</span>
+                              </div>
+                            ) : compare.status === 'external_not_found' ? (
+                              <div className="text-sm text-red-700">External wallet not found</div>
+                            ) : compare.status === 'local_not_found' ? (
+                              <div className="text-sm text-orange-700">Local wallet not found (external only)</div>
+                            ) : (
+                              <div className="text-sm">N/A</div>
+                            )
+                          ) : (
+                            <div className="text-sm text-gray-500">—</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {r.local ? (
+                            editingId === r.local.id ? (
+                              <div className="flex items-center gap-2">
+                                <button onClick={() => saveEdit(r.local.id)} className="px-2 py-1 btn btn-success">Save</button>
+                                <button onClick={cancelEdit} className="px-2 py-1 btn btn-ghost border">Cancel</button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <button onClick={() => startEdit(r.local)} className="px-2 py-1 btn btn-ghost border">Edit</button>
+                                <button onClick={() => handleDelete(r.local.id)} className="px-2 py-1 btn btn-danger border">Delete</button>
+                              </div>
+                            )
+                          ) : (
+                            // external-only actions: show add button
+                            (compare && compare.status === 'local_not_found') ? (
+                              <div className="flex items-center gap-2">
+                                <button onClick={() => addExternalWallet(compare)} className="px-2 py-1 btn btn-primary">Add Wallet</button>
+                              </div>
+                            ) : null
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })
+                })()
               )}
             </tbody>
           </table>
