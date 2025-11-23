@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+
+/* VanEck-inspired variables (copied from site styles) */
+:root{
+  --page-max:64rem;
+  --blue: #17468f;
+  --indigo: #6610f2;
+  --purple: #a200b5;
+  --pink: #e83e8c;
+  --red: #e00;
+  --orange: #fd7e14;
+  --yellow: #ffc107;
+  --green: #005902;
+  --teal: #09a3ae;
+  --cyan: #17a2b8;
+  --white: #fff;
+  --gray: #6c757d;
+  --gray-dark: #343a40;
+  --primary: #17468f;
+  --secondary: #0ab2b0;
+  --success: #005902;
+  --info: #545e6b;
+  --warning: #ffc107;
+  --danger: #e00;
+  --light: #f0f3f6;
+  --dark: #323232;
+  --accent: #a200b5;
+  --highlight: #26ecfc;
+  --muted: #939598;
+  --pastel: #8cb9e9;
+  --tertiary: #001e6d;
+}
+
+html,body,#root{height:100%}
+
+/* Base page styling using VanEck font + colors */
+body{
+  margin:0;padding:0;min-width:320px;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--white);
+  color: var(--dark);
+  font-size: .9375rem;
+  font-weight: 400;
+  line-height: 1.666;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Layout container */
+.app-container{max-width:64rem;margin:0 auto;padding:1rem}
+
+/* Card */
+.card{background:var(--white);border-radius:0.5rem;box-shadow:0 1px 2px rgba(16,24,40,0.05);overflow:hidden}
+
+/* Buttons - small base */
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.25rem 0.75rem;border-radius:0.375rem;font-size:0.875rem}
+
+/* Sticky header helpers */
+.site-header{position:sticky;top:0;z-index:60;background:var(--white);box-shadow:0 1px 0 rgba(0,0,0,0.06)}
+.site-header .container{max-width:64rem;margin:0 auto;display:flex;align-items:center;gap:1rem;padding:0.75rem 1rem}
+.site-logo{height:34px}
+.site-title{font-weight:600;color:var(--primary);font-size:1.125rem}
+
+/* Brand helpers for components */
+.btn-primary{background:var(--primary);color:var(--white);border:1px solid rgba(0,0,0,0.04)}
+.btn-success{background:var(--success);color:var(--white);border:1px solid rgba(0,0,0,0.04)}
+.btn-danger{background:#fee2e2;color:var(--danger);border:1px solid #fecaca}
+.btn-ghost{background:transparent;color:var(--dark)}
+
+/* Indigo compare button */
+.btn-compare{background:var(--indigo);color:var(--white);border:1px solid rgba(0,0,0,0.06)}
+.btn-compare:hover{filter:brightness(0.97)}
+
+/* Higher-contrast outline for refresh button */
+.btn-refresh{background:transparent;color:var(--dark);border:1px solid rgba(15,23,42,0.18);box-shadow:0 0 0 3px rgba(23,70,143,0.06)}
+.btn-refresh:hover{background:rgba(15,23,42,0.02)}
+
+.banner-success{background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b}
+.banner-error{background:#fff1f2;border:1px solid #fecaca;color:#7f1d1d}
+
+.table-header{background:#e9f3ff}
+.table-header h2{color:var(--primary);font-weight:700}
+.table-row-hover:hover{background:#eef6ff}
+
+/* Improve table contrast: clearer header, subtle row stripes, stronger dividers */
+.table-auto{background:var(--white);color:var(--dark);width:100%;border-collapse:collapse}
+.table-auto thead tr{background:#e9f3ff}
+.table-auto thead tr th{background:transparent;color:var(--primary);font-weight:700;border-bottom:2px solid rgba(0,0,0,0.08)}
+.table-auto thead th, .table-auto tbody td{padding:0.75rem 1rem;text-align:left}
+.table-auto tbody tr:nth-child(odd) td{background:#ffffff}
+.table-auto tbody tr:nth-child(even) td{background:#fbfdff}
+.table-auto tbody td{color:var(--dark);border-bottom:1px solid rgba(15,23,42,0.06)}
+.table-auto tbody tr.table-row-hover:hover td{background:#eef6ff}
+
+/* Banner animations */
+.banner-fade-in{animation: bannerFadeIn 180ms ease-out}
+.banner-fade-out{animation: bannerFadeOut 260ms ease-in forwards}
+
+@keyframes bannerFadeIn{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes bannerFadeOut{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-6px)}
+}
+
+@media (prefers-color-scheme: dark){
+  body{background:#0b1220;color:#e6eef8}
+  .card{background:#0b1220}
+}
+
+/* Improve form input contrast and accessibility */
+input, textarea, select {
+  color: var(--dark);
+  background: var(--white);
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.6rem;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* make sure small inputs keep readable text */
+input[type="number"], input[type="text"], input[type="search"]{
+  line-height: 1.25;
+}
+
+input:focus, textarea:focus, select:focus{
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(23,70,143,0.08);
+}
+
+/* stronger disabled styles */
+input:disabled, textarea:disabled, select:disabled{
+  background:#f8fafc;
+  color:var(--muted);
+}
