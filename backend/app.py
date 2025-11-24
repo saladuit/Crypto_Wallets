@@ -3,6 +3,7 @@ Main application file for the FastAPI backend.
 Sets up the app, database, and includes routes.
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -14,7 +15,7 @@ from backend.db.wallet import Base
 from backend.routes.wallets import router
 
 
-DATABASE_URL = "sqlite:///wallets.db"
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///wallets.db")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
@@ -39,6 +40,10 @@ origins = [
     "http://127.0.0.1:5173",
 ]
 
+frontend_origin = os.getenv("FRONTEND_ORIGIN")
+if frontend_origin:
+    origins.append(frontend_origin)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -47,9 +52,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/", tags=["Health Check"])
 async def health_check():
     """Health check endpoint."""
     return {"status": "ok"}
+
 
 app.include_router(router)
