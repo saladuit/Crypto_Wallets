@@ -44,6 +44,8 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN")
 if frontend_origin:
     origins.append(frontend_origin)
 
+print("CORS origins:", origins)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
