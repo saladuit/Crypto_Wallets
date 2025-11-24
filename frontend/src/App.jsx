@@ -1,4 +1,3 @@
-import React from 'react'
 import Wallets from './components/Wallets'
 
 export default function App(){

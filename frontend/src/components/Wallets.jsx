@@ -23,7 +23,6 @@ export default function Wallets(){
   const [comparing, setComparing] = useState(false)
 
   const startCloseBanner = (delay = 300) => {
-    // animate then remove
     if (closeTimer.current) clearTimeout(closeTimer.current)
     setBannerClosing(true)
     closeTimer.current = setTimeout(() => {
@@ -34,7 +33,6 @@ export default function Wallets(){
   }
 
   const showBanner = (b, timeout = 4000) => {
-    // errors stay until manually dismissed
     if (bannerTimer.current) {
       clearTimeout(bannerTimer.current)
       bannerTimer.current = null
@@ -48,7 +46,6 @@ export default function Wallets(){
     setBanner(b)
 
     if (b?.type !== 'error') {
-      // auto-dismiss non-error banners
       bannerTimer.current = setTimeout(() => {
         bannerTimer.current = null
         startCloseBanner(300)
@@ -101,11 +98,9 @@ export default function Wallets(){
   }
 
   const addExternalWallet = async (ext) => {
-    // ext is the external wallet object from compare result
     try {
       await api.post('/wallets/', { address: ext.address, currency: ext.external_currency || ext.currency, expected_quantity: ext.external_quantity })
       showBanner({ type: 'success', text: 'External wallet added' })
-      // refresh local wallets and re-run compare
       await fetchWallets()
       await handleCompare()
     } catch (e) {
@@ -200,7 +195,6 @@ export default function Wallets(){
     }
     try{
       await api.put(`/wallets/${id}`, { expected_quantity })
-      // Update local state
       setWallets(wallets.map(w => w.id === id ? { ...w, expected_quantity } : w))
       cancelEdit()
       showBanner({ type: 'success', text: 'Wallet updated' })
@@ -271,14 +265,12 @@ export default function Wallets(){
               {wallets.length === 0 && Object.keys(compareMap).length === 0 ? (
                 <tr className="border-b border-gray-200 dark:border-gray-700"><td colSpan={5} className="px-4 py-6">No wallets found</td></tr>
               ) : (
-                // Build combined rows: local wallets plus external-only
                 (() => {
                   const rowsByAddress = {}
                   wallets.forEach(w => { rowsByAddress[w.address] = { local: w } })
                   Object.values(compareMap).forEach(c => {
                     if (!rowsByAddress[c.address]) rowsByAddress[c.address] = {}
                     rowsByAddress[c.address].compare = c
-                    // if external-only, attach external object
                     if (!rowsByAddress[c.address].local && (c.status === 'local_not_found' || c.status === 'local_not_found')) {
                       rowsByAddress[c.address].external = { address: c.address, currency: c.external_currency, quantity: c.external_quantity }
                     }
@@ -303,7 +295,6 @@ export default function Wallets(){
                               r.local.expected_quantity
                             )
                           ) : (
-                            // external-only quantity
                             (compare && compare.external_quantity) || (r.external && r.external.quantity) || ''
                           )}
                         </td>
@@ -344,7 +335,6 @@ export default function Wallets(){
                               </div>
                             )
                           ) : (
-                            // external-only actions: show add button
                             (compare && compare.status === 'local_not_found') ? (
                               <div className="flex items-center gap-2">
                                 <button onClick={() => addExternalWallet(compare)} className="px-2 py-1 btn btn-primary">Add Wallet</button>

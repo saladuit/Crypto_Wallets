@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+@import "tailwindcss";
 
 /* VanEck-inspired variables (copied from site styles) */
 :root{
@@ -82,7 +83,7 @@ body{
 .table-header h2{color:var(--primary);font-weight:700}
 .table-row-hover:hover{background:#eef6ff}
 
-/* Improve table contrast: clearer header, subtle row stripes, stronger dividers */
+/* Clearer header, row stripes, dividers */
 .table-auto{background:var(--white);color:var(--dark);width:100%;border-collapse:collapse}
 .table-auto thead tr{background:#e9f3ff}
 .table-auto thead tr th{background:transparent;color:var(--primary);font-weight:700;border-bottom:2px solid rgba(0,0,0,0.08)}
