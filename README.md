@@ -1,5 +1,7 @@
 # crypto_wallet_checker
 
+![Website preview](./assets/webiste_preview.png)
+
 [![Coverage Status](https://coveralls.io/repos/github/saladuit/Crypto_Wallets/badge.svg?branch=main)](https://coveralls.io/github/saladuit/Crypto_Wallets?branch=main) [![CI](https://github.com/saladuit/Crypto_Wallets/actions/workflows/ci.yml/badge.svg)](https://github.com/saladuit/Crypto_Wallets/actions/workflows/ci.yml)
 
 A compact FastAPI backend for checking on-chain wallet balances against expected values stored locally.
@@ -26,19 +28,13 @@ pip install --upgrade pip
 pip install -r backend/requirements.txt
 ```
 
-2. (Optional) Seed a local SQLite DB:
-
-```bash
-python backend/seed_db.py
-```
-
-3. Start the backend:
+2. Start the backend:
 
 ```bash
 uvicorn backend.app:app --reload --port 8000
 ```
 
-4. Start the frontend:
+3. Start the frontend:
 
 ```bash
 cd frontend
@@ -54,7 +50,7 @@ npm run dev
 - Run tests from the project root:
 
 ```bash
-pytest -q --cov --cov-branch
+pytest -q --cov --cov-branch --cov-report=html
 ```
 
 ***Test setup notes***
@@ -64,3 +60,9 @@ pytest -q --cov --cov-branch
   - The `client` fixture overrides the app's `get_db` dependency so route handlers in tests use the test session.
 
 This makes tests fast, isolated, and deterministic; external calls are mocked by tests (see `backend/services` mocks in test files).
+
+**Deployment (Render)**
+
+- Live: `https://crypto-wallets-frontend.onrender.com/` (frontend) and `https://crypto-wallets.onrender.com/` (backend).
+
+- Quick note: both services are hosted on Render's free tier. Free instances sleep after inactivity, so the first request after a sleep can take a long time (often tens of seconds) while the instance wakes. Because the frontend needs the backend, you may see slow or failed requests until the API is awake.
