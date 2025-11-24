@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "tw:watch": "tailwindcss -i ./src/index.css -o ./src/tailwind.css --watch",
-    "tw:build": "tailwindcss -i ./src/index.css -o ./src/tailwind.css --minify",
-    "build": "vite build",
+    "tw:watch": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch",
+    "tw:build": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --minify",
+    "build": "npm run tw:build && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -16,6 +16,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.17",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.22",
     "axios": "^1.4.0",
