@@ -55,7 +55,7 @@ pytest -q --cov --cov-branch --cov-report=html
 ```
 
 ***Test setup notes***
-  - `backend/tests/conftest.py` configures an in-memory SQLite database for tests using:
+`backend/tests/conftest.py` configures an in-memory SQLite database for tests using:
   - `SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"` with `connect_args={"check_same_thread": False}` and `poolclass=StaticPool` so the same in-memory DB is accessible across threads/connections.
   - The fixture creates the schema once for the test session (`Base.metadata.create_all(bind=engine)`), yields, then drops it at teardown.
   - The `client` fixture overrides the app's `get_db` dependency so route handlers in tests use the test session.
